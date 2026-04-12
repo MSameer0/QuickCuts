@@ -34,26 +34,25 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  // Skip cross-origin requests except for JSZip CDN
   if (
-    event.request.cache === "only-if-cached" &&
-    event.request.mode !== "same-origin"
+    !event.request.url.startsWith(self.location.origin) &&
+    !event.request.url.includes("cdnjs.cloudflare.com")
   ) {
     return;
   }
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
+    caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
+      // Return cached version immediately if found
       if (cachedResponse) {
         return addSecurityHeaders(cachedResponse);
       }
 
+      // Otherwise fetch from network and cache for next time
       return fetch(event.request)
         .then((networkResponse) => {
-          if (
-            !networkResponse ||
-            networkResponse.status !== 200 ||
-            networkResponse.type !== "basic"
-          ) {
+          if (!networkResponse || networkResponse.status !== 200) {
             return addSecurityHeaders(networkResponse);
           }
 
