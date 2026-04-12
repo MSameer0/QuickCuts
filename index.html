@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QuickCuts | Batch Export Clips</title>
 
-    <!-- JSZip for Batch Downloads -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
-    <!-- FFmpeg Standalone UMD Script -->
     <script src="ffmpeg/ffmpeg.js"></script>
 
     <link rel="stylesheet" href="style.css" />
@@ -130,6 +128,24 @@
       </main>
 
       <div id="toast" class="toast"></div>
+    </div>
+
+    <div id="exportModal" class="loader-overlay" style="display: none">
+      <div class="loader-content">
+        <h2>Export Options</h2>
+        <p>Choose your preferred export method:</p>
+        <div class="modal-options">
+          <button id="fastExportBtn" class="sec-btn option-card">
+            <strong>Fast Export</strong>
+            <span>Quickly cuts video without re-encoding. May result in slight timing inaccuracies at the start of clips.</span>
+          </button>
+          <button id="accurateExportBtn" class="primary-btn option-card">
+            <strong>Accurate Export</strong>
+            <span>Re-encodes every frame for perfect accuracy. Slower, but best quality.</span>
+          </button>
+        </div>
+        <button id="cancelExportBtn" class="text-btn" style="margin-top: 1rem">Cancel</button>
+      </div>
     </div>
 
     <script src="app.js"></script>

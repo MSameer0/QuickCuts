@@ -1,6 +1,5 @@
 const { FFmpeg } = window.FFmpegWASM;
 
-// Constants and State
 let videoFile = null;
 let videoFileName = "";
 let segments = [];
@@ -8,7 +7,6 @@ let pendingStart = null;
 let nextId = 1;
 let ffmpeg = null;
 
-// DOM Elements
 const videoInput = document.getElementById("videoInput");
 const video = document.getElementById("videoPlayer");
 const timeline = document.getElementById("timeline");
@@ -24,7 +22,6 @@ const exportBtn = document.getElementById("exportBtn");
 const segmentsList = document.getElementById("segmentsList");
 const toast = document.getElementById("toast");
 
-// Loader DOM
 const loader = document.getElementById("loader");
 const loaderTitle = document.getElementById("loaderTitle");
 const loaderText = document.getElementById("loaderText");
@@ -32,7 +29,11 @@ const progressContainer = document.getElementById("progressContainer");
 const progressBar = document.getElementById("progressBar");
 const progressText = document.getElementById("progressText");
 
-// Utils
+const exportModal = document.getElementById("exportModal");
+const fastExportBtn = document.getElementById("fastExportBtn");
+const accurateExportBtn = document.getElementById("accurateExportBtn");
+const cancelExportBtn = document.getElementById("cancelExportBtn");
+
 function formatTime(seconds) {
   if (isNaN(seconds)) return "00:00";
   const h = Math.floor(seconds / 3600);
@@ -54,14 +55,12 @@ function showToast(message, duration = 3000) {
   setTimeout(() => toast.classList.remove("show"), duration);
 }
 
-// FFmpeg Initialization
 async function initFFmpeg() {
   if (ffmpeg !== null) return ffmpeg;
 
   loader.style.display = "flex";
   loaderTitle.textContent = "Initializing Engine...";
-  loaderText.textContent =
-    "Loading FFmpeg WebAssembly. This depends on your internet connection and only happens once per session.";
+  loaderText.textContent = "Loading FFmpeg WebAssembly. This depends on your internet connection and only happens once per session.";
 
   ffmpeg = new FFmpeg();
 
@@ -90,7 +89,6 @@ async function initFFmpeg() {
   }
 }
 
-// File Selection
 browseBtn.addEventListener("click", () => {
   videoInput.click();
 });
@@ -102,7 +100,6 @@ videoInput.addEventListener("change", (e) => {
     videoFileName = file.name;
     fileNameDisplay.textContent = videoFileName;
 
-    // Use object URL for preview
     const fileURL = URL.createObjectURL(file);
     video.src = fileURL;
     video.load();
@@ -113,7 +110,6 @@ videoInput.addEventListener("change", (e) => {
   }
 });
 
-// Video Events
 video.addEventListener("loadedmetadata", () => {
   timeline.max = video.duration;
   durationDisplay.textContent = formatTime(video.duration);
@@ -126,7 +122,6 @@ video.addEventListener("timeupdate", () => {
   currentTimeDisplay.textContent = formatTime(video.currentTime);
 });
 
-// Controls
 const playIconPath = "M8 5v14l11-7z";
 const pauseIconPath = "M6 19h4V5H6v14zm8-14v14h4V5h-4z";
 
@@ -147,7 +142,6 @@ timeline.addEventListener("input", () => {
   video.currentTime = timeline.value;
 });
 
-// Segment Management
 addStartBtn.addEventListener("click", () => {
   pendingStart = video.currentTime;
   showToast(`Start marked at ${formatTime(pendingStart)}`);
@@ -186,20 +180,17 @@ function renderSegments() {
   exportBtn.disabled = segments.length === 0;
 
   if (segments.length === 0) {
-    segmentsList.innerHTML =
-      '<div class="empty-state">Add segments using the timeline buttons</div>';
+    segmentsList.innerHTML = '<div class="empty-state">Add segments using the timeline buttons</div>';
     timelineSegments.innerHTML = "";
     return;
   }
 
-  // Sort segments by start time
   segments.sort((a, b) => a.start - b.start);
 
   segmentsList.innerHTML = "";
   timelineSegments.innerHTML = "";
 
   segments.forEach((seg) => {
-    // Timeline mark
     const mark = document.createElement("div");
     mark.className = "segment-mark";
     const left = (seg.start / video.duration) * 100;
@@ -208,12 +199,11 @@ function renderSegments() {
     mark.style.width = `${width}%`;
     timelineSegments.appendChild(mark);
 
-    // List item
     const item = document.createElement("div");
     item.className = "segment-item";
     item.innerHTML = `
             <div class="segment-info">
-                <strong>Segment #${seg.id}</strong>
+                <strong>Segment #${seg.id} <span class="segment-duration">(${(seg.end - seg.start).toFixed(2)}s)</span></strong>
                 <div class="segment-times">
                     <input type="text" value="${seg.start.toFixed(2)}" data-id="${seg.id}" data-type="start">
                     <span>to</span>
@@ -228,7 +218,6 @@ function renderSegments() {
     segmentsList.appendChild(item);
   });
 
-  // Add event listeners to new elements
   document.querySelectorAll(".delete-btn").forEach((btn) => {
     btn.onclick = () => removeSegment(parseInt(btn.dataset.id));
   });
@@ -265,10 +254,26 @@ function renderSegments() {
   });
 }
 
-// Export logic
-exportBtn.addEventListener("click", async () => {
+exportBtn.addEventListener("click", () => {
   if (!videoFile || segments.length === 0) return;
+  exportModal.style.display = "flex";
+});
 
+cancelExportBtn.addEventListener("click", () => {
+  exportModal.style.display = "none";
+});
+
+fastExportBtn.addEventListener("click", () => {
+  exportModal.style.display = "none";
+  performExport(false);
+});
+
+accurateExportBtn.addEventListener("click", () => {
+  exportModal.style.display = "none";
+  performExport(true);
+});
+
+async function performExport(accurate = true) {
   try {
     const ff = await initFFmpeg();
 
@@ -286,58 +291,55 @@ exportBtn.addEventListener("click", async () => {
     await ff.writeFile(inFileName, fileData);
 
     const zip = new JSZip();
-    const baseName =
-      videoFileName.substring(0, videoFileName.lastIndexOf(".")) ||
-      videoFileName;
+    const baseName = videoFileName.substring(0, videoFileName.lastIndexOf(".")) || videoFileName;
 
     for (let i = 0; i < segments.length; i++) {
       const seg = segments[i];
       const outFileName = `clip_${i + 1}.mp4`;
 
       loaderTitle.textContent = `Processing Segment ${i + 1} of ${segments.length}...`;
-      loaderText.textContent =
-        "Re-encoding to ensure perfect frame accuracy without artifacts. Please wait.";
+      loaderText.textContent = accurate 
+        ? "Re-encoding for perfect frame accuracy..." 
+        : "Fast-cutting without re-encoding...";
+      
       progressBar.style.width = "0%";
       progressText.textContent = "0%";
 
       const startStr = seg.start.toString();
       const durationStr = (seg.end - seg.start).toString();
 
-      // Re-encoding video with ultrafast preset ensures accuracy (no first-frame glitches)
-      // while minimizing processing time in the browser. Audio is copied.
-      await ff.exec([
-        "-ss",
-        startStr,
-        "-i",
-        inFileName,
-        "-t",
-        durationStr,
-        "-c:v",
-        "libx264",
-        "-preset",
-        "ultrafast",
-        "-crf",
-        "22",
-        "-c:a",
-        "copy",
-        outFileName,
-      ]);
+      if (accurate) {
+        await ff.exec([
+          "-ss", startStr,
+          "-i", inFileName,
+          "-t", durationStr,
+          "-c:v", "libx264",
+          "-preset", "ultrafast",
+          "-crf", "22",
+          "-c:a", "copy",
+          outFileName,
+        ]);
+      } else {
+        await ff.exec([
+          "-ss", startStr,
+          "-i", inFileName,
+          "-t", durationStr,
+          "-c", "copy",
+          outFileName,
+        ]);
+      }
 
       const outData = await ff.readFile(outFileName);
       zip.file(`${baseName}_clip_${i + 1}.mp4`, outData.buffer);
-
-      // Clean up the output file from virtual FS to save memory
       await ff.deleteFile(outFileName);
     }
 
     loaderTitle.textContent = "Zipping files...";
-    loaderText.textContent = "Creating the final download package...";
+    loaderText.textContent = "Creating final package...";
     progressContainer.style.display = "none";
     progressText.style.display = "none";
 
     const zipBlob = await zip.generateAsync({ type: "blob" });
-
-    // Download Zip
     const url = URL.createObjectURL(zipBlob);
     const a = document.createElement("a");
     a.href = url;
@@ -347,9 +349,7 @@ exportBtn.addEventListener("click", async () => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    // Clean up input file
     await ff.deleteFile(inFileName);
-
     showToast("Export successful!");
   } catch (err) {
     console.error("Export Error:", err);
@@ -357,11 +357,9 @@ exportBtn.addEventListener("click", async () => {
   } finally {
     loader.style.display = "none";
   }
-});
+}
 
-// Initialize on page load
 window.addEventListener("DOMContentLoaded", async () => {
-  // Unregister any lingering coi-serviceworkers that enforce strict COEP
   if ("serviceWorker" in navigator) {
     try {
       const registrations = await navigator.serviceWorker.getRegistrations();
