@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Lexend:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
   </head>
@@ -21,7 +21,7 @@
     <div id="loader" class="loader-overlay" style="display: none">
       <div class="loader-content">
         <div class="spinner"></div>
-        <h2 id="loaderTitle">Initializing Engine...</h2>
+        <h2 id="loaderTitle">INITIALIZING_ENGINE</h2>
         <p id="loaderText">
           Loading FFmpeg WebAssembly. This depends on your internet connection.
         </p>
@@ -45,15 +45,18 @@
 
     <div class="app-container">
       <header>
-        <div class="logo"><span class="accent">Quick</span>Cuts</div>
+        <div class="logo"><span class="accent">QUICK</span>CUTS</div>
         <div class="file-picker">
+          <button id="themeToggle" class="sec-btn" title="Toggle Theme">
+            THEME_SET
+          </button>
           <input
             type="file"
             id="videoInput"
             accept="video/mp4,video/x-m4v,video/*"
             style="display: none"
           />
-          <button id="browseBtn" class="primary-btn">Select Video</button>
+          <button id="browseBtn" class="primary-btn">SELECT VIDEO</button>
           <span id="fileName" class="file-path">No file selected</span>
         </div>
       </header>
@@ -83,14 +86,14 @@
             </div>
 
             <div class="playback-controls">
-              <span id="currentTime">00:00</span>
+              <span id="currentTime">00:00:00</span>
               <div class="action-buttons">
                 <button
                   id="addStartBtn"
                   class="sec-btn"
                   title="Set Segment Start"
                 >
-                  Start [ [ ]
+                  START_[[
                 </button>
                 <button id="playPauseBtn" class="icon-btn" aria-label="Play">
                   <svg
@@ -104,19 +107,19 @@
                   </svg>
                 </button>
                 <button id="addEndBtn" class="sec-btn" title="Set Segment End">
-                  End [ ] ]
+                  END_]]
                 </button>
               </div>
-              <span id="duration">00:00</span>
+              <span id="duration">00:00:00</span>
             </div>
           </div>
         </div>
 
         <div class="segments-section">
           <div class="segments-header">
-            <h2>Segments</h2>
+            <h2>SEGMENTS</h2>
             <button id="exportBtn" class="primary-btn" disabled>
-              Export to ZIP
+              EXPORT_ZIP
             </button>
           </div>
           <div class="segments-list card" id="segmentsList">
@@ -126,6 +129,26 @@
           </div>
         </div>
       </main>
+
+      <footer>
+        <div class="footer-content">
+          <div class="footer-links">
+            <a href="https://github.com/MSameer0" target="_blank" rel="noopener"
+              >GITHUB</a
+            >
+            <span class="separator">|</span>
+            <a
+              href="https://www.linkedin.com/in/muhammad-sameer-adnan-58655534b"
+              target="_blank"
+              rel="noopener"
+              >LINKEDIN</a
+            >
+          </div>
+          <div class="copyright">
+            &copy; 2026 QUICKCUTS. ALL RIGHTS RESERVED.
+          </div>
+        </div>
+      </footer>
 
       <div id="toast" class="toast"></div>
     </div>

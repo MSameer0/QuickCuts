@@ -6,19 +6,19 @@ QuickCuts is a browser-based tool designed for extracting multiple segments from
 
 The application provides a streamlined workflow for video editors and content creators who need to batch-process clips:
 
-*   Timeline-based Marking: Use the visual timeline to set start and end points for segments.
-*   Manual Time Entry: Fine-tune segment boundaries by entering precise timestamps.
-*   Segment Length Display: View the duration of each marked segment before exporting.
-*   Dual Export Modes: Choose between Fast Export for instant cuts and Accurate Export for frame-perfect re-encoding.
-*   Batch Downloads: All processed clips are packaged into a single ZIP archive for easy management.
+- Timeline-based Marking: Use the visual timeline to set start and end points for segments.
+- Manual Time Entry: Fine-tune segment boundaries by entering precise timestamps.
+- Segment Length Display: View the duration of each marked segment before exporting.
+- Dual Export Modes: Choose between Fast Export for instant cuts and Accurate Export for frame-perfect re-encoding.
+- Batch Downloads: All processed clips are packaged into a single ZIP archive for easy management.
 
 ## Technical Overview
 
 QuickCuts is built using modern web technologies:
 
-*   FFmpeg.wasm: Handles the heavy lifting of video processing directly in the browser via WebAssembly.
-*   JSZip: Dynamically generates the ZIP archive for batch exports.
-*   Vanilla JavaScript and CSS: Ensures a lightweight and responsive user interface without unnecessary dependencies.
+- FFmpeg.wasm: Handles the heavy lifting of video processing directly in the browser via WebAssembly.
+- JSZip: Dynamically generates the ZIP archive for batch exports.
+- Vanilla JavaScript and CSS: Ensures a lightweight and responsive user interface without unnecessary dependencies.
 
 ## Hosting
 

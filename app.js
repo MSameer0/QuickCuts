@@ -35,18 +35,21 @@ const accurateExportBtn = document.getElementById("accurateExportBtn");
 const cancelExportBtn = document.getElementById("cancelExportBtn");
 
 function formatTime(seconds) {
-  if (isNaN(seconds)) return "00:00";
+  if (isNaN(seconds)) return "00:00:00.00";
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
   const s = Math.floor(seconds % 60);
   const ms = Math.floor((seconds % 1) * 100);
 
-  const parts = [];
-  if (h > 0) parts.push(h.toString().padStart(2, "0"));
-  parts.push(m.toString().padStart(2, "0"));
-  parts.push(s.toString().padStart(2, "0"));
-
-  return parts.join(":") + "." + ms.toString().padStart(2, "0");
+  return (
+    [
+      h.toString().padStart(2, "0"),
+      m.toString().padStart(2, "0"),
+      s.toString().padStart(2, "0"),
+    ].join(":") +
+    "." +
+    ms.toString().padStart(2, "0")
+  );
 }
 
 function showToast(message, duration = 3000) {
@@ -374,7 +377,27 @@ async function performExport(accurate = true) {
   }
 }
 
+const themeToggle = document.getElementById("themeToggle");
+
+function initTheme() {
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme === "light") {
+    document.body.classList.add("light-mode");
+    themeToggle.textContent = "THEME_LIGHT";
+  } else {
+    themeToggle.textContent = "THEME_DARK";
+  }
+}
+
+themeToggle.addEventListener("click", () => {
+  const isLight = document.body.classList.toggle("light-mode");
+  localStorage.setItem("theme", isLight ? "light" : "dark");
+  themeToggle.textContent = isLight ? "THEME_LIGHT" : "THEME_DARK";
+  showToast(`Switched to ${isLight ? "Light" : "Dark"} Mode`);
+});
+
 window.addEventListener("DOMContentLoaded", async () => {
+  initTheme();
   if ("serviceWorker" in navigator) {
     try {
       const registrations = await navigator.serviceWorker.getRegistrations();
