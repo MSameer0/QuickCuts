@@ -2,11 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QuickCuts | Batch Export Clips</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>QuickCuts Editor</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
     <script src="ffmpeg/ffmpeg.js"></script>
 
     <link rel="stylesheet" href="style.css" />
@@ -22,7 +24,10 @@
       <div class="loader-content">
         <div class="spinner"></div>
         <h2 id="loaderTitle">INITIALIZING_ENGINE</h2>
-        <p id="loaderText">
+        <p
+          id="loaderText"
+          style="color: var(--text-dim); margin-top: 0.5rem; font-size: 0.9rem"
+        >
           Loading FFmpeg WebAssembly. This depends on your internet connection.
         </p>
         <div
@@ -38,146 +43,374 @@
             display: none;
             font-variant-numeric: tabular-nums;
             margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--accent);
           "
         ></p>
       </div>
     </div>
 
-    <div class="app-container">
+    <div class="editor-root">
       <header>
-        <div class="logo"><span class="accent">QUICK</span>CUTS</div>
-        <div class="file-picker">
-          <button id="themeToggle" class="sec-btn" title="Toggle Theme">
-            THEME_SET
+        <div class="brand"><span class="accent">QUICK</span>CUTS</div>
+        <div class="header-actions">
+          <div id="fileName" class="file-info">No file selected</div>
+          <button id="themeToggle" class="icon-btn-circle" title="Toggle Theme">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="5" />
+              <path
+                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+              />
+            </svg>
           </button>
-          <input
-            type="file"
-            id="videoInput"
-            accept="video/mp4,video/x-m4v,video/*"
-            style="display: none"
-          />
-          <button id="browseBtn" class="primary-btn">SELECT VIDEO</button>
-          <span id="fileName" class="file-path">No file selected</span>
+          <button id="exportBtn" class="primary-btn" disabled>EXPORT</button>
         </div>
       </header>
 
-      <main>
-        <div class="video-section">
-          <div class="video-wrapper card">
-            <video id="videoPlayer" playsinline>
-              Your browser does not support the video tag.
-            </video>
-            <div class="video-overlay" id="videoOverlay">
-              <div class="play-icon"></div>
-            </div>
-          </div>
+      <aside class="sidebar-left">
+        <button class="tool-btn active" id="mediaTab">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <polyline points="21 15 16 10 5 21" />
+          </svg>
+          Media
+        </button>
+        <button class="tool-btn" id="browseBtn">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+          Upload
+        </button>
+        <input
+          type="file"
+          id="videoInput"
+          accept="video/mp4,video/x-m4v,video/*"
+          style="display: none"
+        />
+      </aside>
 
-          <div class="controls-card card">
-            <div class="timeline-container">
-              <input
-                type="range"
-                id="timeline"
-                min="0"
-                max="100"
-                step="0.1"
-                value="0"
-              />
-              <div class="timeline-segments" id="timelineSegments"></div>
-            </div>
-
-            <div class="playback-controls">
-              <span id="currentTime">00:00:00</span>
-              <div class="action-buttons">
-                <button
-                  id="addStartBtn"
-                  class="sec-btn"
-                  title="Set Segment Start"
-                >
-                  START_[[
-                </button>
-                <button id="playPauseBtn" class="icon-btn" aria-label="Play">
-                  <svg
-                    class="play-icon-svg"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    height="24"
-                    fill="currentColor"
-                  >
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                </button>
-                <button id="addEndBtn" class="sec-btn" title="Set Segment End">
-                  END_]]
-                </button>
-              </div>
-              <span id="duration">00:00:00</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="segments-section">
-          <div class="segments-header">
-            <h2>SEGMENTS</h2>
-            <button id="exportBtn" class="primary-btn" disabled>
-              EXPORT_ZIP
-            </button>
-          </div>
-          <div class="segments-list card" id="segmentsList">
-            <div class="empty-state">
-              Add segments using the timeline buttons
+      <main class="main-content">
+        <div class="preview-container">
+          <video id="videoPlayer" playsinline>
+            Your browser does not support the video tag.
+          </video>
+          <div class="preview-overlay" id="videoOverlay">
+            <div class="play-pause-overlay">
+              <svg
+                id="playIconOverlay"
+                viewBox="0 0 24 24"
+                width="32"
+                height="32"
+                fill="currentColor"
+              >
+                <path d="M8 5v14l11-7z" />
+              </svg>
             </div>
           </div>
         </div>
       </main>
 
-      <footer>
-        <div class="footer-content">
-          <div class="footer-links">
-            <a href="https://github.com/MSameer0" target="_blank" rel="noopener"
-              >GITHUB</a
+      <aside class="inspector">
+        <div class="inspector-header">
+          SEGMENTS
+          <span
+            id="segmentCount"
+            style="color: var(--accent); font-size: 0.8rem"
+            >0</span
+          >
+        </div>
+        <div class="inspector-content" id="segmentsList">
+          <div class="empty-state">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
             >
-            <span class="separator">|</span>
-            <a
-              href="https://www.linkedin.com/in/muhammad-sameer-adnan-58655534b"
-              target="_blank"
-              rel="noopener"
-              >LINKEDIN</a
-            >
-          </div>
-          <div class="copyright">
-            &copy; 2026 QUICKCUTS. ALL RIGHTS RESERVED.
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            <p>No segments yet</p>
+            <p style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.6">
+              Use the timeline to mark segments
+            </p>
           </div>
         </div>
-      </footer>
+      </aside>
 
-      <div id="toast" class="toast"></div>
+      <section class="timeline-area">
+        <div class="timeline-toolbar">
+          <div class="time-display" id="currentTime">00:00:00.00</div>
+          <div class="timeline-controls">
+            <button
+              id="addStartBtn"
+              class="timeline-action-btn"
+              title="Set Start Mark"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M11 5L4 12L11 19" />
+                <path d="M4 12H20" />
+              </svg>
+              START
+            </button>
+            <button
+              id="playPauseBtn"
+              class="icon-btn-circle"
+              style="background: var(--accent); color: white"
+            >
+              <svg
+                id="playIcon"
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                fill="currentColor"
+              >
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </button>
+            <button
+              id="addEndBtn"
+              class="timeline-action-btn"
+              title="Set End Mark"
+            >
+              END
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M13 19L20 12L13 5" />
+                <path d="20 12H4" />
+              </svg>
+            </button>
+          </div>
+          <div
+            class="time-display"
+            id="duration"
+            style="color: var(--text-dim)"
+          >
+            00:00:00.00
+          </div>
+        </div>
+
+        <div class="timeline-view" id="timelineView">
+          <div class="timeline-ruler" id="timelineRuler"></div>
+          <div class="timeline-track">
+            <div id="timelineSegments"></div>
+            <div class="playhead" id="playhead"></div>
+          </div>
+          <input
+            type="range"
+            id="timeline"
+            min="0"
+            max="100"
+            step="0.01"
+            value="0"
+            class="timeline-scrubber"
+          />
+        </div>
+      </section>
+
+      <nav class="mobile-toolbar">
+        <button class="tool-btn active">
+          <svg
+            viewBox="0 0 24 24"
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <polyline points="21 15 16 10 5 21" />
+          </svg>
+          Editor
+        </button>
+        <button class="tool-btn" id="mobileSegmentsBtn">
+          <svg
+            viewBox="0 0 24 24"
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+          </svg>
+          Segments
+        </button>
+        <button class="tool-btn" id="mobileUploadBtn">
+          <svg
+            viewBox="0 0 24 24"
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+          Upload
+        </button>
+        <button class="tool-btn" id="mobileExportBtn">
+          <svg
+            viewBox="0 0 24 24"
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="4 7 4 4 20 4 20 7" />
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+            <path d="M12 11v4" />
+            <path d="M9 13h6" />
+          </svg>
+          Export
+        </button>
+      </nav>
+    </div>
+
+    <div
+      id="segmentsModal"
+      class="loader-overlay"
+      style="display: none; align-items: flex-end; padding: 0"
+    >
+      <div
+        class="loader-content"
+        style="
+          width: 100%;
+          max-width: none;
+          background: var(--bg-panel);
+          border-radius: 20px 20px 0 0;
+          padding: 1.5rem;
+          height: 80vh;
+          display: flex;
+          flex-direction: column;
+          text-align: left;
+        "
+      >
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+          "
+        >
+          <h2 style="font-size: 1.2rem">Segments</h2>
+          <button
+            id="closeSegmentsBtn"
+            style="padding: 0.5rem; color: var(--text-dim)"
+          >
+            CLOSE
+          </button>
+        </div>
+
+        <div id="mobileSegmentsList" style="flex: 1; overflow-y: auto"></div>
+      </div>
     </div>
 
     <div id="exportModal" class="loader-overlay" style="display: none">
       <div class="loader-content">
-        <h2>Export Options</h2>
-        <p>Choose your preferred export method:</p>
-        <div class="modal-options">
-          <button id="fastExportBtn" class="sec-btn option-card">
-            <strong>Fast Export</strong>
-            <span
-              >Quickly cuts video without re-encoding. May result in slight
-              timing inaccuracies at the start of clips.</span
+        <h2 style="margin-bottom: 0.5rem">Export Options</h2>
+        <p
+          style="
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+          "
+        >
+          Select the export quality and method
+        </p>
+
+        <div style="display: grid; gap: 1rem; margin-bottom: 2rem">
+          <button
+            id="fastExportBtn"
+            class="segment-card"
+            style="text-align: left; width: 100%; cursor: pointer"
+          >
+            <div style="font-weight: 600; color: var(--accent)">
+              Fast Export
+            </div>
+            <div
+              style="
+                font-size: 0.75rem;
+                color: var(--text-dim);
+                margin-top: 0.25rem;
+              "
             >
+              Quickly cuts without re-encoding. Faster but less precise.
+            </div>
           </button>
-          <button id="accurateExportBtn" class="primary-btn option-card">
-            <strong>Accurate Export</strong>
-            <span
-              >Re-encodes every frame for perfect accuracy. Slower, but best
-              quality.</span
+          <button
+            id="accurateExportBtn"
+            class="segment-card"
+            style="text-align: left; width: 100%; cursor: pointer"
+          >
+            <div style="font-weight: 600; color: var(--accent)">
+              Accurate Export
+            </div>
+            <div
+              style="
+                font-size: 0.75rem;
+                color: var(--text-dim);
+                margin-top: 0.25rem;
+              "
             >
+              Re-encodes for perfect frame accuracy. Best quality.
+            </div>
           </button>
         </div>
-        <button id="cancelExportBtn" class="text-btn" style="margin-top: 1rem">
+
+        <button
+          id="cancelExportBtn"
+          style="
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            text-decoration: underline;
+          "
+        >
           Cancel
         </button>
       </div>
     </div>
+
+    <div id="toast" class="toast"></div>
 
     <script src="app.js"></script>
   </body>
