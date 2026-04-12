@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuickCuts | Batch Export Clips</title>
+
+    <!-- JSZip for Batch Downloads -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- FFmpeg Standalone UMD Script -->
+    <script src="ffmpeg/ffmpeg.js"></script>
+
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="loader" class="loader-overlay" style="display: none">
+      <div class="loader-content">
+        <div class="spinner"></div>
+        <h2 id="loaderTitle">Initializing Engine...</h2>
+        <p id="loaderText">
+          Loading FFmpeg WebAssembly. This depends on your internet connection.
+        </p>
+        <div
+          class="progress-container"
+          id="progressContainer"
+          style="display: none"
+        >
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <p
+          id="progressText"
+          style="
+            display: none;
+            font-variant-numeric: tabular-nums;
+            margin-top: 0.5rem;
+          "
+        ></p>
+      </div>
+    </div>
+
+    <div class="app-container">
+      <header>
+        <div class="logo"><span class="accent">Quick</span>Cuts</div>
+        <div class="file-picker">
+          <input
+            type="file"
+            id="videoInput"
+            accept="video/mp4,video/x-m4v,video/*"
+            style="display: none"
+          />
+          <button id="browseBtn" class="primary-btn">Select Video</button>
+          <span id="fileName" class="file-path">No file selected</span>
+        </div>
+      </header>
+
+      <main>
+        <div class="video-section">
+          <div class="video-wrapper card">
+            <video id="videoPlayer" playsinline>
+              Your browser does not support the video tag.
+            </video>
+            <div class="video-overlay" id="videoOverlay">
+              <div class="play-icon"></div>
+            </div>
+          </div>
+
+          <div class="controls-card card">
+            <div class="timeline-container">
+              <input
+                type="range"
+                id="timeline"
+                min="0"
+                max="100"
+                step="0.1"
+                value="0"
+              />
+              <div class="timeline-segments" id="timelineSegments"></div>
+            </div>
+
+            <div class="playback-controls">
+              <span id="currentTime">00:00</span>
+              <div class="action-buttons">
+                <button
+                  id="addStartBtn"
+                  class="sec-btn"
+                  title="Set Segment Start"
+                >
+                  Start [ [ ]
+                </button>
+                <button id="playPauseBtn" class="icon-btn" aria-label="Play">
+                  <svg
+                    class="play-icon-svg"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    height="24"
+                    fill="currentColor"
+                  >
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </button>
+                <button id="addEndBtn" class="sec-btn" title="Set Segment End">
+                  End [ ] ]
+                </button>
+              </div>
+              <span id="duration">00:00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="segments-section">
+          <div class="segments-header">
+            <h2>Segments</h2>
+            <button id="exportBtn" class="primary-btn" disabled>
+              Export to ZIP
+            </button>
+          </div>
+          <div class="segments-list card" id="segmentsList">
+            <div class="empty-state">
+              Add segments using the timeline buttons
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <div id="toast" class="toast"></div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
