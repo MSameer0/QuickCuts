@@ -398,14 +398,26 @@ themeToggle.addEventListener("click", () => {
 
 window.addEventListener("DOMContentLoaded", async () => {
   initTheme();
+
   if ("serviceWorker" in navigator) {
     try {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      for (let registration of registrations) {
-        await registration.unregister();
-      }
+      const registration = await navigator.serviceWorker.register("sw.js");
+      console.log("ServiceWorker registered with scope:", registration.scope);
+
+      // If a new worker was found, we might want to refresh to get high-speed headers
+      registration.onupdatefound = () => {
+        const newWorker = registration.installing;
+        newWorker.onstatechange = () => {
+          if (
+            newWorker.state === "installed" &&
+            navigator.serviceWorker.controller
+          ) {
+            showToast("Update available! Reload for faster performance.");
+          }
+        };
+      };
     } catch (e) {
-      console.warn("Service worker cleanup failed:", e);
+      console.error("Service worker registration failed:", e);
     }
   }
 
