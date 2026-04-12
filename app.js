@@ -34,6 +34,7 @@ const progressText = document.getElementById("progressText");
 
 const exportModal = document.getElementById("exportModal");
 const fastExportBtn = document.getElementById("fastExportBtn");
+const balancedExportBtn = document.getElementById("balancedExportBtn");
 const accurateExportBtn = document.getElementById("accurateExportBtn");
 const cancelExportBtn = document.getElementById("cancelExportBtn");
 
@@ -377,15 +378,20 @@ cancelExportBtn.addEventListener("click", () => {
 
 fastExportBtn.addEventListener("click", () => {
   exportModal.style.display = "none";
-  performExport(false);
+  performExport("fast");
+});
+
+balancedExportBtn.addEventListener("click", () => {
+  exportModal.style.display = "none";
+  performExport("balanced");
 });
 
 accurateExportBtn.addEventListener("click", () => {
   exportModal.style.display = "none";
-  performExport(true);
+  performExport("accurate");
 });
 
-async function performExport(accurate = true) {
+async function performExport(mode = "accurate") {
   try {
     const ff = await initFFmpeg();
 
@@ -412,42 +418,67 @@ async function performExport(accurate = true) {
       const outFileName = `clip_${i + 1}.mp4`;
 
       loaderTitle.textContent = `EXPORTING_${i + 1}/${segments.length}`;
-      loaderText.textContent = accurate
-        ? "Re-encoding for accuracy..."
-        : "Fast cutting...";
+
+      let modeText = "Re-encoding...";
+      if (mode === "fast") modeText = "Fast cutting...";
+      if (mode === "balanced") modeText = "Balanced re-encoding (720p)...";
+      loaderText.textContent = modeText;
 
       const startStr = seg.start.toString();
       const durationStr = (seg.end - seg.start).toString();
 
-      const args = accurate
-        ? [
-            "-ss",
-            startStr,
-            "-i",
-            inFileName,
-            "-t",
-            durationStr,
-            "-c:v",
-            "libx264",
-            "-preset",
-            "ultrafast",
-            "-crf",
-            "22",
-            "-c:a",
-            "copy",
-            outFileName,
-          ]
-        : [
-            "-ss",
-            startStr,
-            "-i",
-            inFileName,
-            "-t",
-            durationStr,
-            "-c",
-            "copy",
-            outFileName,
-          ];
+      let args = [];
+      if (mode === "fast") {
+        args = [
+          "-ss",
+          startStr,
+          "-i",
+          inFileName,
+          "-t",
+          durationStr,
+          "-c",
+          "copy",
+          outFileName,
+        ];
+      } else if (mode === "balanced") {
+        args = [
+          "-ss",
+          startStr,
+          "-i",
+          inFileName,
+          "-t",
+          durationStr,
+          "-c:v",
+          "libx264",
+          "-preset",
+          "ultrafast",
+          "-crf",
+          "28",
+          "-vf",
+          "scale=-2:min(720,ih)",
+          "-c:a",
+          "copy",
+          outFileName,
+        ];
+      } else {
+        args = [
+          "-ss",
+          startStr,
+          "-i",
+          inFileName,
+          "-t",
+          durationStr,
+          "-c:v",
+          "libx264",
+          "-preset",
+          "ultrafast",
+          "-crf",
+          "22",
+          "-c:a",
+          "copy",
+          outFileName,
+        ];
+      }
 
       await ff.exec(args);
 

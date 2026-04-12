@@ -374,17 +374,15 @@
                 margin-top: 0.25rem;
               "
             >
-              Quickly cuts without re-encoding. Faster but less precise.
+              Instant cuts. May have minor glitches at the start of clips.
             </div>
           </button>
           <button
-            id="accurateExportBtn"
+            id="balancedExportBtn"
             class="segment-card"
             style="text-align: left; width: 100%; cursor: pointer"
           >
-            <div style="font-weight: 600; color: var(--accent)">
-              Accurate Export
-            </div>
+            <div style="font-weight: 600; color: #ffca28">Balanced Export</div>
             <div
               style="
                 font-size: 0.75rem;
@@ -392,7 +390,23 @@
                 margin-top: 0.25rem;
               "
             >
-              Re-encodes for perfect frame accuracy. Best quality.
+              Frame accurate at 720p. 2-3x faster than Accurate mode.
+            </div>
+          </button>
+          <button
+            id="accurateExportBtn"
+            class="segment-card"
+            style="text-align: left; width: 100%; cursor: pointer"
+          >
+            <div style="font-weight: 600; color: #66bb6a">Accurate Export</div>
+            <div
+              style="
+                font-size: 0.75rem;
+                color: var(--text-dim);
+                margin-top: 0.25rem;
+              "
+            >
+              Full quality re-encode. Perfect frame accuracy but slow.
             </div>
           </button>
         </div>
