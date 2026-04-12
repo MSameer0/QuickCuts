@@ -60,7 +60,8 @@ async function initFFmpeg() {
 
   loader.style.display = "flex";
   loaderTitle.textContent = "Initializing Engine...";
-  loaderText.textContent = "Loading FFmpeg WebAssembly. This depends on your internet connection and only happens once per session.";
+  loaderText.textContent =
+    "Loading FFmpeg WebAssembly. This depends on your internet connection and only happens once per session.";
 
   ffmpeg = new FFmpeg();
 
@@ -180,7 +181,8 @@ function renderSegments() {
   exportBtn.disabled = segments.length === 0;
 
   if (segments.length === 0) {
-    segmentsList.innerHTML = '<div class="empty-state">Add segments using the timeline buttons</div>';
+    segmentsList.innerHTML =
+      '<div class="empty-state">Add segments using the timeline buttons</div>';
     timelineSegments.innerHTML = "";
     return;
   }
@@ -291,17 +293,19 @@ async function performExport(accurate = true) {
     await ff.writeFile(inFileName, fileData);
 
     const zip = new JSZip();
-    const baseName = videoFileName.substring(0, videoFileName.lastIndexOf(".")) || videoFileName;
+    const baseName =
+      videoFileName.substring(0, videoFileName.lastIndexOf(".")) ||
+      videoFileName;
 
     for (let i = 0; i < segments.length; i++) {
       const seg = segments[i];
       const outFileName = `clip_${i + 1}.mp4`;
 
       loaderTitle.textContent = `Processing Segment ${i + 1} of ${segments.length}...`;
-      loaderText.textContent = accurate 
-        ? "Re-encoding for perfect frame accuracy..." 
+      loaderText.textContent = accurate
+        ? "Re-encoding for perfect frame accuracy..."
         : "Fast-cutting without re-encoding...";
-      
+
       progressBar.style.width = "0%";
       progressText.textContent = "0%";
 
@@ -310,21 +314,32 @@ async function performExport(accurate = true) {
 
       if (accurate) {
         await ff.exec([
-          "-ss", startStr,
-          "-i", inFileName,
-          "-t", durationStr,
-          "-c:v", "libx264",
-          "-preset", "ultrafast",
-          "-crf", "22",
-          "-c:a", "copy",
+          "-ss",
+          startStr,
+          "-i",
+          inFileName,
+          "-t",
+          durationStr,
+          "-c:v",
+          "libx264",
+          "-preset",
+          "ultrafast",
+          "-crf",
+          "22",
+          "-c:a",
+          "copy",
           outFileName,
         ]);
       } else {
         await ff.exec([
-          "-ss", startStr,
-          "-i", inFileName,
-          "-t", durationStr,
-          "-c", "copy",
+          "-ss",
+          startStr,
+          "-i",
+          inFileName,
+          "-t",
+          durationStr,
+          "-c",
+          "copy",
           outFileName,
         ]);
       }
