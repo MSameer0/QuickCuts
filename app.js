@@ -455,7 +455,7 @@ async function performExport(mode = "accurate") {
           "-crf",
           "28",
           "-vf",
-          "scale=-2:min(720,ih)",
+          "scale=-2:min(720\\,ih)",
           "-c:a",
           "copy",
           outFileName,
